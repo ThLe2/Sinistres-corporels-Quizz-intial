@@ -3,13 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Quiz de positionnement initial - Gestion des sinistres corporels</title>
+  <title>Quiz de positionnement initial</title>
   <style>
     :root {
       --tmk-blue: #0f4c81;
       --tmk-blue-dark: #0a3558;
       --tmk-gold: #c8a96b;
-      --tmk-bg: #f4f7fb;
       --tmk-white: #ffffff;
       --tmk-text: #1f2937;
       --tmk-muted: #6b7280;
@@ -19,11 +18,12 @@
       --tmk-error: #b42318;
       --tmk-error-bg: #fef3f2;
       --tmk-card: #f9fbfd;
+      --tmk-green: #16a34a;
+      --tmk-orange: #ea580c;
+      --tmk-red: #dc2626;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -44,6 +44,17 @@
       max-width: 220px;
       width: 100%;
       height: auto;
+    }
+
+    .fictif-banner {
+      background: #b91c1c;
+      color: white;
+      text-align: center;
+      padding: 7px 16px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .07em;
+      text-transform: uppercase;
     }
 
     .page-wrap {
@@ -68,7 +79,7 @@
 
     .hero h1 {
       margin: 0 0 10px;
-      font-size: 30px;
+      font-size: 28px;
       line-height: 1.2;
     }
 
@@ -91,9 +102,7 @@
       letter-spacing: 0.2px;
     }
 
-    .content {
-      padding: 30px;
-    }
+    .content { padding: 30px; }
 
     .intro {
       background: #f1f7fc;
@@ -104,6 +113,29 @@
       line-height: 1.6;
     }
 
+    .progress-bar {
+      background: #e5e7eb;
+      border-radius: 10px;
+      height: 8px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      background: linear-gradient(90deg, var(--tmk-green), var(--tmk-blue));
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s ease;
+      border-radius: 10px;
+    }
+
+    .progress-text {
+      text-align: center;
+      font-size: 14px;
+      color: var(--tmk-muted);
+      margin-bottom: 15px;
+    }
+
     .question {
       background: var(--tmk-card);
       border: 1px solid var(--tmk-border);
@@ -112,36 +144,73 @@
       margin-bottom: 20px;
     }
 
-    .question h3 {
-      margin: 0 0 14px;
-      font-size: 18px;
-      color: var(--tmk-blue-dark);
-      line-height: 1.4;
+    .question.answered-correct { border-left: 5px solid var(--tmk-success); }
+    .question.answered-incorrect { border-left: 5px solid var(--tmk-error); }
+
+    .question-number {
+      display: inline-block;
+      background: var(--tmk-blue);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 12px;
+      margin-right: 6px;
     }
 
-    .options {
-      display: grid;
-      gap: 10px;
+    .question h3 {
+      margin: 0 0 14px;
+      font-size: 17px;
+      color: var(--tmk-blue-dark);
+      line-height: 1.5;
     }
+
+    .options { display: grid; gap: 10px; }
 
     .option {
       display: block;
       background: #fff;
-      border: 1px solid #d7e3ef;
+      border: 2px solid #d7e3ef;
       border-radius: 10px;
       padding: 12px 14px;
       transition: all 0.2s ease;
       cursor: pointer;
     }
 
-    .option:hover {
+    .option:hover:not(.disabled) {
       border-color: var(--tmk-blue);
       background: #f8fbfe;
     }
 
+    .option.selected { border-color: var(--tmk-blue); background: #e8f4fc; }
+    .option.correct { border-color: var(--tmk-success); background: var(--tmk-success-bg); }
+    .option.incorrect { border-color: var(--tmk-error); background: var(--tmk-error-bg); }
+    .option.disabled { cursor: default; opacity: 0.7; }
+
     .option input {
       margin-right: 10px;
       transform: translateY(1px);
+    }
+
+    .feedback {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.5;
+      display: none;
+    }
+    .feedback.show { display: block; }
+    .feedback.correct {
+      background: var(--tmk-success-bg);
+      border: 1px solid var(--tmk-success);
+      color: #166534;
+    }
+    .feedback.incorrect {
+      background: var(--tmk-error-bg);
+      border: 1px solid var(--tmk-error);
+      color: #991b1b;
     }
 
     .actions {
@@ -160,25 +229,21 @@
       cursor: pointer;
       transition: 0.2s ease;
     }
-
-    .btn-primary {
-      background: var(--tmk-blue);
-      color: white;
-    }
-
-    .btn-primary:hover {
-      background: var(--tmk-blue-dark);
-    }
-
+    .btn-primary { background: var(--tmk-blue); color: white; }
+    .btn-primary:hover { background: var(--tmk-blue-dark); }
+    .btn-primary:disabled { background: #9ca3af; cursor: not-allowed; }
     .btn-secondary {
       background: #eef2f7;
       color: var(--tmk-blue-dark);
       border: 1px solid #d6e0ea;
     }
+    .btn-secondary:hover { background: #e4ebf3; }
 
-    .btn-secondary:hover {
-      background: #e4ebf3;
+    .btn-export {
+      background: var(--tmk-success);
+      color: white;
     }
+    .btn-export:hover { background: #166534; }
 
     .results {
       display: none;
@@ -193,21 +258,30 @@
       background: linear-gradient(135deg, #eef6fc 0%, #f8fbff 100%);
       border: 1px solid #d6e5f2;
       border-radius: 12px;
-      padding: 18px;
+      padding: 24px;
       margin-bottom: 22px;
+      text-align: center;
     }
 
-    .score-box h2 {
-      margin: 0 0 8px;
-      color: var(--tmk-blue-dark);
-      font-size: 24px;
+    .score-circle {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 32px;
+      font-weight: bold;
+      color: white;
     }
+    .score-circle.excellent { background: linear-gradient(135deg, var(--tmk-green), #22c55e); }
+    .score-circle.good { background: linear-gradient(135deg, var(--tmk-blue), #3b82f6); }
+    .score-circle.average { background: linear-gradient(135deg, var(--tmk-orange), #f97316); }
+    .score-circle.low { background: linear-gradient(135deg, var(--tmk-red), #ef4444); }
 
-    .score-box p {
-      margin: 0;
-      color: var(--tmk-muted);
-      line-height: 1.5;
-    }
+    .score-box h2 { margin: 0 0 8px; color: var(--tmk-blue-dark); font-size: 24px; }
+    .score-box p { margin: 0; color: var(--tmk-muted); line-height: 1.5; }
 
     .result-item {
       border-radius: 12px;
@@ -217,29 +291,19 @@
       background: white;
       box-shadow: 0 2px 8px rgba(15, 76, 129, 0.04);
     }
+    .result-item.correct { border-left-color: var(--tmk-success); background: var(--tmk-success-bg); }
+    .result-item.incorrect { border-left-color: var(--tmk-error); background: var(--tmk-error-bg); }
 
-    .result-item.correct {
-      border-left-color: var(--tmk-success);
-      background: var(--tmk-success-bg);
-    }
-
-    .result-item.incorrect {
-      border-left-color: var(--tmk-error);
-      background: var(--tmk-error-bg);
-    }
-
-    .result-title {
-      font-weight: bold;
-      margin-bottom: 8px;
-      color: #111827;
-    }
-
-    .answer {
-      font-weight: bold;
-      margin-bottom: 6px;
-    }
-
-    .explanation {
+    .result-title { font-weight: bold; margin-bottom: 8px; color: #111827; }
+    .result-question { font-size: 15px; margin-bottom: 8px; color: #374151; }
+    .answer { font-weight: bold; margin-bottom: 6px; color: var(--tmk-success); }
+    .user-answer { font-size: 14px; color: var(--tmk-error); margin-bottom: 6px; }
+    .result-explication {
+      font-size: 13px;
+      color: #374151;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed #cbd5e1;
       line-height: 1.5;
     }
 
@@ -259,26 +323,261 @@
       font-size: 14px;
     }
 
+    .category-tag {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .category-tag.green { background: #dcfce7; color: #166534; }
+    .category-tag.orange { background: #ffedd5; color: #9a3412; }
+    .category-tag.blue { background: #dbeafe; color: #1e40af; }
+    .category-tag.purple { background: #f3e8ff; color: #6b21a8; }
+    .category-tag.red { background: #fee2e2; color: #991b1b; }
+
+    .scenario-box {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-left: 5px solid #d97706;
+      border-radius: 10px;
+      padding: 16px 18px;
+      margin-bottom: 22px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .scenario-box strong { color: #92400e; }
+
     @media (max-width: 700px) {
-      .hero {
-        padding: 24px 20px;
+      .hero { padding: 24px 20px; }
+      .content { padding: 20px; }
+      .hero h1 { font-size: 22px; }
+      .question h3 { font-size: 16px; }
+    }
+
+    /* ═══════ STYLES POUR L'IMPRESSION PDF ═══════ */
+    @media print {
+      @page {
+        size: A4;
+        margin: 12mm 14mm 14mm 14mm;
       }
+
+      body {
+        background: white !important;
+        font-size: 10pt;
+        color: #000;
+      }
+
+      /* Cacher les éléments non pertinents pour le PDF */
+      .fictif-banner,
+      .tmk-header,
+      .scenario-box,
+      .intro,
+      .progress-text,
+      .progress-bar,
+      .actions,
+      #exportHelp,
+      #exportDone,
+      #quizForm > .question,
+      .tmk-footer {
+        display: none !important;
+      }
+
+      /* La structure de la page */
+      .page-wrap {
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+
+      .quiz-shell {
+        box-shadow: none !important;
+        border: none !important;
+        border-radius: 0 !important;
+      }
+
+      /* En-tête PDF dédié injecté par JS */
+      .pdf-header {
+        display: block !important;
+        text-align: center;
+        border-bottom: 2px solid #c8a96b;
+        padding-bottom: 6mm;
+        margin-bottom: 6mm;
+      }
+      .pdf-header .brand {
+        font-size: 16pt;
+        font-weight: bold;
+        color: #0f4c81;
+        letter-spacing: 0.5pt;
+      }
+      .pdf-header .module {
+        font-size: 9pt;
+        color: #6b7280;
+        margin-top: 2px;
+      }
+      .pdf-header .doc-type {
+        display: inline-block;
+        margin-top: 5px;
+        background: #b91c1c;
+        color: white !important;
+        padding: 2px 12px;
+        border-radius: 3px;
+        font-size: 7.5pt;
+        font-weight: bold;
+        letter-spacing: 0.8pt;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      /* En-tête du quiz (la zone bleue) */
+      .hero {
+        background: #0f4c81 !important;
+        color: white !important;
+        padding: 10px 14px !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        margin-bottom: 6mm;
+        page-break-inside: avoid;
+      }
+      .hero h1 { font-size: 14pt !important; margin: 0 0 4px !important; }
+      .hero p { font-size: 9pt !important; margin: 0 !important; }
+      .hero p strong { color: white !important; }
+      .hero-badge { font-size: 7.5pt !important; margin-bottom: 6px; padding: 3px 9px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); }
 
       .content {
-        padding: 20px;
+        padding: 0 !important;
       }
 
-      .hero h1 {
-        font-size: 24px;
+      /* Bloc meta injecté dynamiquement */
+      .pdf-meta {
+        display: block !important;
+        background: #f1f7fc !important;
+        border: 1px solid #d9e2ec;
+        border-left: 4px solid #0f4c81;
+        border-radius: 4px;
+        padding: 8px 12px;
+        margin-bottom: 6mm;
+        font-size: 9pt;
+        line-height: 1.6;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        page-break-inside: avoid;
+      }
+      .pdf-meta strong { color: #0f4c81; }
+
+      /* Box de score */
+      .score-box {
+        page-break-inside: avoid;
+        background: #eef6fc !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        padding: 12px !important;
+        margin-bottom: 6mm !important;
+        border: 1px solid #d6e5f2;
+        border-radius: 6px;
+      }
+      .score-circle {
+        width: 70px !important;
+        height: 70px !important;
+        font-size: 16pt !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .score-box h2 { font-size: 13pt !important; margin: 8px 0 4px; }
+      .score-box p { font-size: 9.5pt !important; }
+
+      .results {
+        display: block !important;
+        background: white !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
       }
 
-      .question h3 {
-        font-size: 17px;
+      /* Titre des détails */
+      .results-detail-title {
+        display: block !important;
+        font-size: 11pt;
+        font-weight: bold;
+        color: #0f4c81;
+        margin: 6mm 0 3mm;
+        padding-bottom: 2mm;
+        border-bottom: 1px solid #c8a96b;
+      }
+
+      .result-item {
+        page-break-inside: avoid;
+        margin-bottom: 3mm !important;
+        padding: 8px 10px !important;
+        box-shadow: none !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        border-radius: 4px;
+      }
+
+      .result-item.correct { background: #eefaf1 !important; border-left: 4px solid #1f7a3e !important; }
+      .result-item.incorrect { background: #fef3f2 !important; border-left: 4px solid #b42318 !important; }
+
+      .result-title { font-size: 9.5pt !important; margin-bottom: 3px !important; }
+      .result-question { font-size: 9.5pt !important; margin-bottom: 4px !important; }
+      .answer { font-size: 9pt !important; margin-bottom: 3px !important; }
+      .user-answer { font-size: 9pt !important; margin-bottom: 3px !important; }
+      .result-explication {
+        font-size: 8.5pt !important;
+        margin-top: 4px !important;
+        padding-top: 4px !important;
+        line-height: 1.4 !important;
+      }
+
+      /* Bandeau de pied de page imprimé en bas du dernier bloc */
+      .pdf-footer {
+        display: block !important;
+        text-align: center;
+        margin-top: 6mm;
+        padding-top: 3mm;
+        border-top: 1px solid #b91c1c;
+        font-size: 8pt;
+        color: #b91c1c;
+        font-weight: bold;
+      }
+      .pdf-footer .sub {
+        font-weight: normal;
+        font-style: italic;
+        font-size: 7pt;
+        color: #6b7280;
+        margin-top: 1mm;
+      }
+
+      /* Note de bas de page (déjà existante) */
+      .footer-note {
+        font-size: 7.5pt !important;
+        margin-top: 3mm !important;
+      }
+
+      /* Filigrane fictif - un seul, central */
+      body::before {
+        content: "DOCUMENT FICTIF";
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-45deg);
+        font-size: 50pt;
+        font-weight: bold;
+        color: rgba(220, 38, 38, 0.06);
+        z-index: -1;
+        pointer-events: none;
+        white-space: nowrap;
       }
     }
+
+    /* Cacher les éléments PDF en mode écran */
+    .pdf-meta, .pdf-header, .pdf-footer, .results-detail-title { display: none; }
   </style>
 </head>
 <body>
+
+  <div class="fictif-banner">Cas pédagogique fictif — Ne constitue pas un document officiel</div>
 
   <div class="tmk-header">
     <img src="assets/logo.png" alt="TMK Performances">
@@ -290,87 +589,131 @@
         <div class="hero-badge">Parcours @learning • Banque • Assurance • Relation client</div>
         <h1>Quiz de positionnement initial</h1>
         <p>
-          Module : <strong>Gestion des sinistres corporels</strong><br>
-          Ce quiz permet d'évaluer les connaissances de départ des apprenants avant l'entrée dans le parcours de formation.
+          <strong>Module : Gestion des sinistres corporels</strong>
         </p>
       </div>
 
       <div class="content">
+
+        <div class="scenario-box">
+          <strong>Bienvenue !</strong> Ce quiz de positionnement permet d'évaluer vos connaissances de départ avant l'entrée dans le parcours de formation. Il ne constitue pas une évaluation certificative : son objectif est uniquement de cerner vos acquis pour mieux personnaliser votre apprentissage.
+        </div>
+
         <div class="intro">
-          Répondez aux questions ci-dessous puis cliquez sur <strong>« Voir mon résultat »</strong>.
-          À la fin du quiz, votre <strong>score</strong>, les <strong>bonnes réponses</strong> et une
-          <strong>explication pédagogique</strong> s'afficheront automatiquement.
+          Ce quiz comporte <strong>7 questions</strong>. Répondez en sélectionnant l'option qui vous semble la plus juste, puis cliquez sur <strong>« Valider mes réponses »</strong> pour obtenir votre score, vos résultats détaillés et les explications pédagogiques.
+        </div>
+
+        <div class="progress-text">Question <span id="answeredCount">0</span> / 7 répondues</div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
         </div>
 
         <form id="quizForm">
 
-          <div class="question">
-            <h3>1. Un conducteur responsable est-il toujours indemnisé de ses blessures ?</h3>
+          <!-- Question 1 -->
+          <div class="question" data-question="q1">
+            <span class="question-number">Question 1</span>
+            <span class="category-tag purple">Indemnisation du conducteur</span>
+            <h3>Un conducteur responsable est-il toujours indemnisé de ses blessures ?</h3>
             <div class="options">
               <label class="option"><input type="radio" name="q1" value="a"> Oui, dans tous les cas</label>
               <label class="option"><input type="radio" name="q1" value="b"> Non, cela dépend notamment des garanties souscrites au contrat</label>
               <label class="option"><input type="radio" name="q1" value="c"> Oui, seulement si un tiers est impliqué</label>
             </div>
+            <div class="feedback"></div>
           </div>
 
-          <div class="question">
-            <h3>2. Une victime blessée est-elle automatiquement indemnisée ?</h3>
+          <!-- Question 2 -->
+          <div class="question" data-question="q2">
+            <span class="question-number">Question 2</span>
+            <span class="category-tag orange">Droit à indemnisation</span>
+            <h3>Une victime blessée est-elle automatiquement indemnisée ?</h3>
             <div class="options">
               <label class="option"><input type="radio" name="q2" value="a"> Oui, dès lors qu'elle déclare un accident</label>
               <label class="option"><input type="radio" name="q2" value="b"> Non, l'indemnisation dépend de la situation, des garanties et de l'analyse du dossier</label>
               <label class="option"><input type="radio" name="q2" value="c"> Oui, uniquement si elle présente un certificat médical</label>
             </div>
+            <div class="feedback"></div>
           </div>
 
-          <div class="question">
-            <h3>3. Qu'est-ce qu'une exclusion de garantie ?</h3>
+          <!-- Question 3 -->
+          <div class="question" data-question="q3">
+            <span class="question-number">Question 3</span>
+            <span class="category-tag blue">Notion contractuelle</span>
+            <h3>Qu'est-ce qu'une exclusion de garantie ?</h3>
             <div class="options">
               <label class="option"><input type="radio" name="q3" value="a"> Une situation prévue au contrat dans laquelle l'assureur ne prend pas en charge le sinistre</label>
               <label class="option"><input type="radio" name="q3" value="b"> Une pièce manquante dans le dossier</label>
               <label class="option"><input type="radio" name="q3" value="c"> Une demande de remboursement complémentaire</label>
             </div>
+            <div class="feedback"></div>
           </div>
 
-          <div class="question">
-            <h3>4. Parmi les éléments suivants, lequel est indispensable pour ouvrir un dossier corporel ?</h3>
+          <!-- Question 4 -->
+          <div class="question" data-question="q4">
+            <span class="question-number">Question 4</span>
+            <span class="category-tag green">Ouverture du dossier</span>
+            <h3>Parmi les éléments suivants, lequel est indispensable pour ouvrir un dossier corporel ?</h3>
             <div class="options">
               <label class="option"><input type="radio" name="q4" value="a"> Le numéro d'immatriculation seul</label>
               <label class="option"><input type="radio" name="q4" value="b"> Des informations sur les circonstances, les personnes impliquées et la nature des blessures</label>
               <label class="option"><input type="radio" name="q4" value="c"> Le montant estimé de l'indemnisation finale</label>
             </div>
+            <div class="feedback"></div>
           </div>
 
-          <div class="question">
-            <h3>5. Quelle est la principale différence entre un sinistre matériel et un sinistre corporel ?</h3>
+          <!-- Question 5 -->
+          <div class="question" data-question="q5">
+            <span class="question-number">Question 5</span>
+            <span class="category-tag blue">Distinction fondamentale</span>
+            <h3>Quelle est la principale différence entre un sinistre matériel et un sinistre corporel ?</h3>
             <div class="options">
               <label class="option"><input type="radio" name="q5" value="a"> Le sinistre corporel concerne une atteinte à la personne, physique ou psychique</label>
               <label class="option"><input type="radio" name="q5" value="b"> Le sinistre corporel est toujours plus rapide à traiter</label>
               <label class="option"><input type="radio" name="q5" value="c"> Le sinistre matériel nécessite toujours une expertise médicale</label>
             </div>
+            <div class="feedback"></div>
           </div>
 
-          <div class="question">
-            <h3>6. Quel document ou élément peut être utile dès le début d'un dossier corporel ?</h3>
+          <!-- Question 6 -->
+          <div class="question" data-question="q6">
+            <span class="question-number">Question 6</span>
+            <span class="category-tag purple">Pièces médicales</span>
+            <h3>Quel document ou élément peut être utile dès le début d'un dossier corporel ?</h3>
             <div class="options">
               <label class="option"><input type="radio" name="q6" value="a"> Un certificat médical initial ou les premiers éléments médicaux</label>
               <label class="option"><input type="radio" name="q6" value="b"> Un devis de réparation du véhicule uniquement</label>
               <label class="option"><input type="radio" name="q6" value="c"> La clôture du dossier</label>
             </div>
+            <div class="feedback"></div>
           </div>
 
-          <div class="question">
-            <h3>7. Le gestionnaire de sinistre corporel doit-il uniquement vérifier le contrat ?</h3>
+          <!-- Question 7 -->
+          <div class="question" data-question="q7">
+            <span class="question-number">Question 7</span>
+            <span class="category-tag orange">Rôle du gestionnaire</span>
+            <h3>Le gestionnaire de sinistre corporel doit-il uniquement vérifier le contrat ?</h3>
             <div class="options">
               <label class="option"><input type="radio" name="q7" value="a"> Oui, le contrat suffit pour indemniser</label>
               <label class="option"><input type="radio" name="q7" value="b"> Non, il doit aussi analyser les circonstances, les responsabilités, les pièces médicales et la situation de la victime</label>
               <label class="option"><input type="radio" name="q7" value="c"> Oui, si la victime est blessée</label>
             </div>
+            <div class="feedback"></div>
           </div>
 
           <div class="actions">
-            <button type="button" class="btn-primary" onclick="corrigerQuiz()">Voir mon résultat</button>
-            <button type="button" class="btn-secondary" onclick="reinitialiserQuiz()">Recommencer</button>
+            <button type="button" class="btn-primary" id="submitBtn" onclick="corrigerQuiz()">Valider mes réponses</button>
+            <button type="button" class="btn-secondary" id="resetBtn" onclick="reinitialiserQuiz()">Recommencer</button>
+            <button type="button" class="btn-export" id="exportBtn" onclick="exporterPDF()" style="display:none;" title="Ouvre le dialogue d'impression — choisissez « Enregistrer en PDF »">📄 Télécharger en PDF</button>
           </div>
+          <p id="exportHelp" style="display:none; font-size: 12px; color: #6b7280; margin-top: 10px; font-style: italic;">
+            💡 Le bouton ci-dessus ouvre la boîte de dialogue d'impression de votre navigateur.
+            Choisissez <strong>« Enregistrer au format PDF »</strong> ou <strong>« Microsoft Print to PDF »</strong> comme imprimante de destination.<br>
+            ⚠️ <strong>Important :</strong> le PDF ne peut être généré qu'<strong>une seule fois</strong> par session.
+          </p>
+          <p id="exportDone" style="display:none; font-size: 13px; color: #166534; margin-top: 10px; font-weight: 600; background: #dcfce7; padding: 10px 14px; border-radius: 8px; border-left: 4px solid #166534;">
+            ✓ <strong>PDF généré.</strong> Pour des raisons pédagogiques, il n'est plus possible de regénérer un nouveau PDF dans cette session, même en recommençant le quiz. Vous pouvez néanmoins refaire le quiz pour vous entraîner — vos résultats s'afficheront à l'écran.
+          </p>
         </form>
 
         <div id="results" class="results"></div>
@@ -379,7 +722,7 @@
   </div>
 
   <div class="tmk-footer">
-    © <span id="year"></span> TMK Performances
+    © <span id="year"></span> TMK Performances — Formation Gestion des Sinistres Corporels
   </div>
 
   <script>
@@ -392,98 +735,277 @@
       q4: "b",
       q5: "a",
       q6: "a",
-      q7: "b"
+      q7: "b",
     };
 
     const corrections = {
       q1: {
-        bonne: "Non, cela dépend notamment des garanties souscrites au contrat.",
-        explication: "Le conducteur responsable n'est pas systématiquement indemnisé de ses propres blessures. Cela dépend notamment de l'existence d'une garantie du conducteur et des conditions prévues au contrat."
+        bonne: "Non, cela dépend notamment des garanties souscrites au contrat",
+        explication: "Le conducteur responsable n'est pas systématiquement indemnisé de ses propres blessures. Cela dépend notamment de l'existence d'une <b>garantie conducteur</b> et des conditions prévues au contrat. La RC automobile obligatoire ne couvre que les tiers — le conducteur lui-même doit souscrire une garantie spécifique pour ses propres préjudices corporels."
       },
       q2: {
-        bonne: "Non, l'indemnisation dépend de la situation, des garanties et de l'analyse du dossier.",
-        explication: "Une blessure ne suffit pas à elle seule à déclencher automatiquement une indemnisation. Il faut analyser le contexte, la qualité de la victime, les garanties mobilisables et les pièces du dossier."
+        bonne: "Non, l'indemnisation dépend de la situation, des garanties et de l'analyse du dossier",
+        explication: "Une blessure ne suffit pas à elle seule à déclencher automatiquement une indemnisation. Il faut analyser le <b>contexte</b>, la <b>qualité de la victime</b> (conducteur, passager, piéton…), les <b>garanties mobilisables</b> et les <b>pièces du dossier</b>. C'est tout le travail du gestionnaire de sinistres corporels."
       },
       q3: {
-        bonne: "Une situation prévue au contrat dans laquelle l'assureur ne prend pas en charge le sinistre.",
-        explication: "L'exclusion de garantie limite la prise en charge de l'assureur dans certaines situations clairement prévues au contrat."
+        bonne: "Une situation prévue au contrat dans laquelle l'assureur ne prend pas en charge le sinistre",
+        explication: "Une <b>exclusion de garantie</b> est une situation expressément prévue au contrat dans laquelle l'assureur ne prend pas en charge le sinistre (par exemple : conduite en état d'ivresse, faute intentionnelle, défaut de permis…). Elle limite la prise en charge dans des cas clairement identifiés et doit être lisible pour l'assuré."
       },
       q4: {
-        bonne: "Des informations sur les circonstances, les personnes impliquées et la nature des blessures.",
-        explication: "L'ouverture d'un dossier corporel nécessite au minimum des éléments sur l'accident, les personnes concernées et les atteintes subies."
+        bonne: "Des informations sur les circonstances, les personnes impliquées et la nature des blessures",
+        explication: "L'ouverture d'un dossier corporel nécessite au minimum des éléments sur l'<b>accident</b> (date, lieu, circonstances), les <b>personnes concernées</b> (victime, responsable, témoins) et les <b>atteintes subies</b>. Le numéro d'immatriculation seul est insuffisant ; le montant final ne peut être estimé qu'après instruction complète du dossier."
       },
       q5: {
-        bonne: "Le sinistre corporel concerne une atteinte à la personne, physique ou psychique.",
-        explication: "Le sinistre matériel porte sur les biens, alors que le sinistre corporel concerne les dommages subis par une personne."
+        bonne: "Le sinistre corporel concerne une atteinte à la personne, physique ou psychique",
+        explication: "Le <b>sinistre matériel</b> porte sur les biens (véhicule, habitation, objets) alors que le <b>sinistre corporel</b> concerne les dommages subis par une personne — atteinte physique ou psychique. Cette distinction est fondamentale car les régimes juridiques, les pièces à réunir et la durée d'instruction diffèrent profondément entre les deux."
       },
       q6: {
-        bonne: "Un certificat médical initial ou les premiers éléments médicaux.",
-        explication: "Les premiers éléments médicaux permettent de qualifier les blessures et d'engager l'instruction du dossier corporel."
+        bonne: "Un certificat médical initial ou les premiers éléments médicaux",
+        explication: "Le <b>certificat médical initial (CMI)</b> ou les premiers éléments médicaux permettent de qualifier les blessures, d'établir le lien de causalité avec l'accident, et d'engager l'instruction du dossier corporel. C'est la pièce médico-légale de référence sur laquelle se construit toute l'évaluation des préjudices."
       },
       q7: {
-        bonne: "Non, il doit aussi analyser les circonstances, les responsabilités, les pièces médicales et la situation de la victime.",
-        explication: "La gestion d'un dossier corporel ne repose pas uniquement sur le contrat. Elle implique aussi une analyse factuelle, médicale et juridique."
-      }
+        bonne: "Non, il doit aussi analyser les circonstances, les responsabilités, les pièces médicales et la situation de la victime",
+        explication: "La gestion d'un dossier corporel ne repose pas uniquement sur le contrat. Elle implique une analyse <b>factuelle</b> (circonstances, témoignages), <b>juridique</b> (loi Badinter, responsabilités), <b>médicale</b> (CMI, expertise, consolidation) et <b>humaine</b> (accompagnement de la victime). C'est un métier de synthèse qui mobilise plusieurs expertises."
+      },
     };
+
+    function updateProgress() {
+      let answered = 0;
+      const total = Object.keys(reponsesCorrectes).length;
+      for (let q in reponsesCorrectes) {
+        if (document.querySelector(`input[name="${q}"]:checked`)) answered++;
+      }
+      document.getElementById('answeredCount').textContent = answered;
+      document.getElementById('progressFill').style.width = `${(answered / total) * 100}%`;
+    }
+
+    document.querySelectorAll('input[type="radio"]').forEach(radio => {
+      radio.addEventListener('change', updateProgress);
+    });
+
+    // Stockage des résultats pour l'export PDF
+    let resultatsQuiz = null;
+    // État : le PDF a-t-il déjà été téléchargé dans cette session ?
+    let pdfDejaGenere = false;
 
     function corrigerQuiz() {
       let score = 0;
       const total = Object.keys(reponsesCorrectes).length;
       let html = "";
+      const detailsResultats = [];
 
       for (let question in reponsesCorrectes) {
+        const questionDiv = document.querySelector(`[data-question="${question}"]`);
         const reponseUtilisateur = document.querySelector(`input[name="${question}"]:checked`);
         const estCorrect = reponseUtilisateur && reponseUtilisateur.value === reponsesCorrectes[question];
+        const feedback = questionDiv.querySelector('.feedback');
+        const questionText = questionDiv.querySelector('h3').textContent;
 
-        if (estCorrect) score++;
+        if (estCorrect) {
+          score++;
+          questionDiv.classList.add('answered-correct');
+          feedback.className = 'feedback show correct';
+          feedback.innerHTML = `<strong>✓ Correct !</strong> ${corrections[question].explication}`;
+        } else {
+          questionDiv.classList.add('answered-incorrect');
+          feedback.className = 'feedback show incorrect';
+          feedback.innerHTML = `<strong>✗ Incorrect.</strong> La bonne réponse était : ${corrections[question].bonne}<br>${corrections[question].explication}`;
+        }
+
+        questionDiv.querySelectorAll('.option').forEach(opt => {
+          opt.classList.add('disabled');
+          const input = opt.querySelector('input');
+          if (input.value === reponsesCorrectes[question]) {
+            opt.classList.add('correct');
+          } else if (reponseUtilisateur && input.value === reponseUtilisateur.value && !estCorrect) {
+            opt.classList.add('incorrect');
+          }
+        });
+
+        // Réponse choisie en texte
+        let reponseTexte = "Aucune réponse";
+        if (reponseUtilisateur) {
+          reponseTexte = reponseUtilisateur.parentElement.textContent.trim();
+        }
+
+        detailsResultats.push({
+          numero: question.toUpperCase(),
+          questionTexte: questionText,
+          estCorrect: estCorrect,
+          bonneReponse: corrections[question].bonne,
+          reponseUtilisateur: reponseTexte,
+          explication: corrections[question].explication
+        });
 
         html += `
           <div class="result-item ${estCorrect ? 'correct' : 'incorrect'}">
-            <div class="result-title">${question.toUpperCase()} — ${estCorrect ? 'Bonne réponse' : 'Réponse incorrecte ou non renseignée'}</div>
+            <div class="result-title">${question.toUpperCase()} — ${estCorrect ? '✓ Correct' : '✗ Incorrect'}</div>
+            <div class="result-question">${questionText}</div>
             <div class="answer">Bonne réponse : ${corrections[question].bonne}</div>
-            <div class="explanation">${corrections[question].explication}</div>
+            ${!estCorrect && reponseUtilisateur ? `<div class="user-answer">Votre réponse : ${reponseUtilisateur.parentElement.textContent.trim()}</div>` : ''}
+            <div class="result-explication"><strong>Explication :</strong> ${corrections[question].explication}</div>
           </div>
         `;
       }
 
       const pourcentage = Math.round((score / total) * 100);
-
+      const noteSur20 = Math.round((score / total) * 20 * 10) / 10;  // Une décimale
       let appreciation = "";
+      let scoreClass = "";
       if (pourcentage >= 85) {
-        appreciation = "Très bon niveau de connaissances initiales.";
-      } else if (pourcentage >= 60) {
-        appreciation = "Bon socle de départ, à consolider pendant la formation.";
+        appreciation = "Excellent travail ! Vous maîtrisez parfaitement les enjeux de ce dossier. Votre analyse est rigoureuse et témoigne d'une solide compréhension des mécanismes juridiques et pratiques. Vous êtes prêt(e) à gérer ce type de situation en autonomie.";
+        scoreClass = "excellent";
+      } else if (pourcentage >= 70) {
+        appreciation = "Bon niveau, bravo ! Vous avez intégré les notions essentielles et vos réflexes professionnels sont bons. Quelques points méritent encore d'être consolidés — relisez attentivement les explications pour franchir le cap.";
+        scoreClass = "good";
+      } else if (pourcentage >= 50) {
+        appreciation = "Des bases réelles sur lesquelles construire. Certaines subtilités du dossier demandent encore à être approfondies, c'est tout l'intérêt de la formation. Prenez le temps de revoir les corrections : chaque dossier vous fera progresser.";
+        scoreClass = "average";
       } else {
-        appreciation = "Ce positionnement met en évidence plusieurs notions à découvrir ou à approfondir pendant le module.";
+        appreciation = "Pas d'inquiétude : ce quiz est avant tout un outil d'apprentissage, et les cas pratiques sont conçus pour vous faire réfléchir. Les corrections détaillées ci-dessous vous donneront les clés pour mieux aborder ce type de dossier. Reprenez tranquillement, vous progresserez à coup sûr !";
+        scoreClass = "low";
       }
+
+      // Stockage pour l'export PDF
+      resultatsQuiz = {
+        titre: document.querySelector('.hero h1').textContent,
+        sousTitre: document.querySelector('.hero p strong').textContent,
+        score: score,
+        total: total,
+        pourcentage: pourcentage,
+        noteSur20: noteSur20,
+        appreciation: appreciation,
+        details: detailsResultats,
+        date: new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })
+      };
 
       document.getElementById("results").innerHTML = `
         <div class="score-box">
-          <h2>Votre score : ${score} / ${total} (${pourcentage}%)</h2>
+          <div class="score-circle ${scoreClass}">${score}/${total}</div>
+          <h2>Votre score : ${pourcentage}% — Note : ${noteSur20}/20</h2>
           <p>${appreciation}</p>
         </div>
         ${html}
         <div class="footer-note">
-          Ce quiz de positionnement permet d'identifier les acquis de départ. Il ne constitue pas une évaluation certificative.
+          Ce quiz porte sur un cas pratique fictif. Les noms, dates et situations sont purement pédagogiques.
+          Prenez le temps de relire les corrections pour consolider vos acquis.
         </div>
       `;
 
       document.getElementById("results").style.display = "block";
+      document.getElementById("submitBtn").disabled = true;
 
-      window.scrollTo({
-        top: document.getElementById("results").offsetTop - 20,
-        behavior: "smooth"
-      });
+      // Le bouton d'export n'est affiché que si le PDF n'a pas déjà été généré
+      // (sinon, on a refait le quiz et on doit empêcher la regénération)
+      if (!pdfDejaGenere) {
+        document.getElementById("exportBtn").style.display = "inline-block";
+        document.getElementById("exportHelp").style.display = "block";
+      } else {
+        document.getElementById("exportDone").style.display = "block";
+      }
+
+      window.scrollTo({ top: document.getElementById("results").offsetTop - 20, behavior: "smooth" });
+    }
+
+    function exporterPDF() {
+      if (!resultatsQuiz) return;
+      if (pdfDejaGenere) return;  // Sécurité supplémentaire
+
+      // Nettoyer les anciennes injections
+      document.querySelectorAll('.pdf-header, .pdf-meta, .pdf-footer, .results-detail-title')
+        .forEach(el => el.remove());
+
+      const resultsBox = document.getElementById('results');
+      const scoreBox = resultsBox.querySelector('.score-box');
+
+      // 1) En-tête TMK pour le PDF (en haut de la page)
+      const headerBlock = document.createElement('div');
+      headerBlock.className = 'pdf-header';
+      headerBlock.innerHTML = `
+        <div class="brand">TMK PERFORMANCES</div>
+        <div class="module">Formation Gestion des Sinistres Corporels</div>
+        <div class="doc-type">RÉSULTATS DU QUIZ — DOCUMENT FICTIF À USAGE PÉDAGOGIQUE</div>
+      `;
+      const shell = document.querySelector('.quiz-shell');
+      shell.insertBefore(headerBlock, shell.firstChild);
+
+      // 2) Bloc meta avec date, score, note
+      const metaBlock = document.createElement('div');
+      metaBlock.className = 'pdf-meta';
+      metaBlock.innerHTML = `
+        <strong>Date de passation :</strong> ${resultatsQuiz.date}<br>
+        <strong>Cas pratique :</strong> ${resultatsQuiz.titre}<br>
+        <strong>Note finale :</strong> ${resultatsQuiz.noteSur20} / 20 &nbsp;•&nbsp;
+        <strong>Score :</strong> ${resultatsQuiz.score} / ${resultatsQuiz.total} questions correctes (${resultatsQuiz.pourcentage} %)
+      `;
+      resultsBox.insertBefore(metaBlock, scoreBox);
+
+      // 3) Titre de la section "détail des réponses"
+      const detailTitle = document.createElement('div');
+      detailTitle.className = 'results-detail-title';
+      detailTitle.textContent = "Détail des réponses et corrections";
+      scoreBox.insertAdjacentElement('afterend', detailTitle);
+
+      // 4) Pied de page de fin de document
+      const footerBlock = document.createElement('div');
+      footerBlock.className = 'pdf-footer';
+      footerBlock.innerHTML = `
+        — DOCUMENT FICTIF À USAGE PÉDAGOGIQUE —
+        <div class="sub">TMK Performances – Formation Sinistres Corporels • Les noms, dates et situations sont entièrement fictifs.</div>
+      `;
+      resultsBox.appendChild(footerBlock);
+
+      // Marquer comme généré AVANT d'imprimer (au cas où l'utilisateur annulerait,
+      // on considère malgré tout que le PDF a été ouvert/vu)
+      pdfDejaGenere = true;
+
+      // Lancer l'impression
+      setTimeout(() => {
+        window.print();
+        // Après impression : masquer le bouton et afficher le message
+        document.getElementById("exportBtn").style.display = "none";
+        document.getElementById("exportHelp").style.display = "none";
+        document.getElementById("exportDone").style.display = "block";
+      }, 150);
     }
 
     function reinitialiserQuiz() {
+      // Si le PDF a déjà été généré, prévenir l'utilisateur
+      if (pdfDejaGenere) {
+        const continuer = confirm(
+          "⚠️ Vous avez déjà téléchargé le PDF de vos résultats.\n\n" +
+          "Vous pouvez refaire le quiz pour vous entraîner, mais il ne sera plus possible " +
+          "de regénérer un nouveau PDF dans cette session.\n\n" +
+          "Souhaitez-vous continuer ?"
+        );
+        if (!continuer) return;
+      }
+
       document.getElementById("quizForm").reset();
       document.getElementById("results").style.display = "none";
       document.getElementById("results").innerHTML = "";
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
+      document.getElementById("submitBtn").disabled = false;
+      document.getElementById("exportBtn").style.display = "none";
+      document.getElementById("exportHelp").style.display = "none";
+      document.getElementById("exportDone").style.display = "none";
+      // ATTENTION : on ne remet PAS pdfDejaGenere à false
+      // Cela garantit qu'un seul PDF peut être généré par session
+      resultatsQuiz = null;
+      // Nettoyer les blocs PDF qui auraient été injectés
+      document.querySelectorAll('.pdf-header, .pdf-meta, .pdf-footer, .results-detail-title')
+        .forEach(el => el.remove());
+      document.querySelectorAll('.question').forEach(q => {
+        q.classList.remove('answered-correct', 'answered-incorrect');
       });
+      document.querySelectorAll('.option').forEach(opt => {
+        opt.classList.remove('disabled', 'correct', 'incorrect', 'selected');
+      });
+      document.querySelectorAll('.feedback').forEach(f => {
+        f.className = 'feedback';
+        f.innerHTML = '';
+      });
+      updateProgress();
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   </script>
 </body>
